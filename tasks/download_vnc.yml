@@ -1,0 +1,56 @@
+---
+##This playbook will install vnc on ubuntu 16.04
+- name: Installing dependent packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - xfce4
+    - xfce4-goodies
+    - tightvncserver
+    - python3-pexpect
+
+- name: vncserver execution
+  expect:
+    command: /usr/bin/vncserver
+    responses: 
+      Password: 
+        - vncserver123
+      Verify:
+        - vncserver123
+      Would you like to enter a view-only password (y/n)?:
+        - y
+      Password:
+        - vncserver
+      Verify:
+        - vncserver
+  become: true
+  become_user: ubuntu
+
+- name: Kill the VncServer
+  shell: vncserver -kill :1
+  become: true
+  become_user: ubuntu
+
+- name: Backing up the existing Xstartup file
+  shell: mv /home/ubuntu/.vnc/xstartup /home/ubuntu/.vnc/xstartup.bak
+  become: true
+  become_user: ubuntu
+
+- name: Configuring Xstartup file
+  template:
+    src: xstartup.j2
+    dest: "/home/ubuntu/.vnc/xstartup"
+
+- name: Giving Execute permission to Xstartup file
+  file: 
+    dest: /home/ubuntu/.vnc/xstartup
+    mode: a+x
+
+- name: Restarting VncServer
+  shell: vncserver
+  become: true
+  become_user: ubuntu
+
+
