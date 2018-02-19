@@ -45,7 +45,6 @@ Author Information
 Nishan P A
 
 Devops Team
-Razorthink Inc
 
 Contributors:
 
